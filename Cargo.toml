@@ -23,4 +23,4 @@ async-trait =   "0.1.57"
 rusty-money =   { version = "0.4.1", features = ["iso", "crypto"] }
 # ISO8601に準拠した日付・時間
 chrono = "0.4.19"
-app_commons = {git = "https://github.com/fullness-MFurukawa/app_commons" , rev="aca76b2832ea0b1f0d768bee391671c898e378b5" }
+app_commons = {git = "https://github.com/fullness-MFurukawa/app_commons" , rev="56b74fbd679b68cce8dbf6ed363e8ca6116ee5da" }

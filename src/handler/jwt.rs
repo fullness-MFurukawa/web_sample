@@ -4,8 +4,8 @@ use actix_web::{FromRequest, HttpRequest};
 use actix_web::dev::Payload;
 use chrono::Duration;
 use serde::{Serialize, Deserialize};
-use app_commons::app_commons::transfers::UserDto;
-use app_commons::view_commons::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtDecoder};
+use app_commons::application::transfers::UserDto;
+use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtDecoder};
 use crate::WebAppError;
 
 /// クレーム(認証に必要な個人情報)
