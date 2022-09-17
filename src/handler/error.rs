@@ -50,11 +50,11 @@ impl ResponseError for WebAppError {
         let path = match self {
             WebAppError::InternalError(error) => {
                 error!("{:?}" , error) ;
-                "/sample_web/error"
+                "/web_sample/error"
             },
             WebAppError::NotAuthenticateError(message) =>{
                 error!("{}" , message);
-                "/sample_web/login"
+                "/web_sample/login"
             }
         };
         UiHelper::found(path , None)

@@ -18,7 +18,7 @@ impl ProductRegisterHandler {
     // HTML Redirect PATH
     const ENTER_PATH: &'static  str = "pages/register/enter.html";
     const FINISH_PATH: &'static str = "pages/register/finish.html";
-    const FINISH_REDIRECT: &'static str = "/sample_web/register/product/finish";
+    const FINISH_REDIRECT: &'static str = "/web_sample/register/product/finish";
     ///
     /// 商品登録　
     /// 商品入力画面要求への応答
