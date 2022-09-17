@@ -73,7 +73,7 @@ pub fn set_config(config: &mut web::ServiceConfig){
     use web_sample::handler::product_register::ProductRegisterHandler;
     use web_sample::handler::authenticate::AuthenticateHandler;
     config.service(
-        web::scope("/sample_web")
+        web::scope("/web_sample")
             .route("/login" , web::get().to(AuthenticateHandler::enter))
             .route("/login" , web::post().to(AuthenticateHandler::authenticate))
             .route("/menu" , web::get().to(MenuHandler::menu))
