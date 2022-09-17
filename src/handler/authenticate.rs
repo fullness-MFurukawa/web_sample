@@ -17,7 +17,7 @@ pub struct AuthenticateHandler;
 impl AuthenticateHandler {
     // HTML Redirect PATH
     const VIEW_PATH: &'static str = "pages/login/login.html";
-    const MENU_REDIRECT: &'static str = "/sample_web/menu";
+    const MENU_REDIRECT: &'static str = "/web_sample/menu";
     ///
     /// 認証
     /// ログイン画面要求
