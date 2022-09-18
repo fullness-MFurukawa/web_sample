@@ -8,6 +8,7 @@ use app_commons::application::transfers::UserDto;
 use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtDecoder};
 use crate::WebAppError;
 
+
 /// クレーム(認証に必要な個人情報)
 /// JWTトークンのPayload
 #[derive(Debug, Serialize, Deserialize)]
@@ -15,7 +16,8 @@ pub struct WebClaims {
     iat:        i64 ,      //  Token取得日時
     exp:        i64 ,      //  Tokenの有効期限
     sub:        String ,   //  リソースオーナーの識別子
-    user_id:    String ,   //   ユーザーId(Uuid)
+    user_id:    String ,   //  ユーザーId(Uuid)
+    user_name:  String, //   ユーザー名
 }
 impl ClaimsGenerator<UserDto> for WebClaims {
     fn generate(user: &UserDto) -> Self {
@@ -27,6 +29,7 @@ impl ClaimsGenerator<UserDto> for WebClaims {
             exp: (now + Duration::minutes(5)).timestamp() , // 有効期限を5分に設定
             sub: String::from("M.Furukawa") , // オーナー識別子を設定
             user_id: user.user_id.clone() ,     // ユーザーidを設定
+            user_name: user.user_name.clone(),  // ユーザー名
         }
     }
 }
