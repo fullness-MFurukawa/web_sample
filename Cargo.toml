@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 actix       =   "0.13.0"
-actix-web = { version = "4.1.0", features = ["openssl"] }
+actix-web = { version = "4.2.1", features = ["openssl"] }
 #actix-session = { version="0.7.1" , features = ["cookie-session"] }
 actix-session = { version="0.7.1" , features = ["redis-rs-session"]}
 serde       =   { version = "1.0.138", features = ["derive"] }
@@ -23,4 +23,4 @@ async-trait =   "0.1.57"
 rusty-money =   { version = "0.4.1", features = ["iso", "crypto"] }
 # ISO8601に準拠した日付・時間
 chrono = "0.4.19"
-app_commons = {git = "https://github.com/fullness-MFurukawa/app_commons" , rev="56b74fbd679b68cce8dbf6ed363e8ca6116ee5da" }
+app_commons = {git = "https://github.com/fullness-MFurukawa/app_commons" , rev="ca1eaaaa2cb85bc4774663f966a3d44f0624f573" }

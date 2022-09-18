@@ -29,6 +29,7 @@ impl ProductRegisterHandler {
         tera: web::Data<tera::Tera> ,
         pool: web::Data<Arc<DatabaseConnection>> ,
         provider: web::Data<Arc<AppServiceProvider>>) -> Result<impl Responder> {
+
         // セッションからカテゴリを取得
         let session_categories = SessionHelper::get::<Vec<CategoryDto>>(&session,"categories")?;
         let categories = match session_categories {
@@ -60,6 +61,7 @@ impl ProductRegisterHandler {
         tera: web::Data<tera::Tera>  ,
         pool: web::Data<Arc<DatabaseConnection>> ,
         provider: web::Data<Arc<AppServiceProvider>>) -> Result<impl Responder> {
+
         // セッションからカテゴリを取得
         let categories = SessionHelper::get::<Vec<CategoryDto>>(&session,"categories")?.unwrap();
         // 入力値の検証
