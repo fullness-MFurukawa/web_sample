@@ -5,7 +5,7 @@ use actix_web::dev::Payload;
 use chrono::Duration;
 use serde::{Serialize, Deserialize};
 use app_commons::application::transfers::UserDto;
-use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtDecoder};
+use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtDecoder, JwtEncoder};
 use crate::WebAppError;
 
 
@@ -34,6 +34,22 @@ impl ClaimsGenerator<UserDto> for WebClaims {
     }
 }
 ///
+/// Web用Jwtトークンのデコード
+///
+#[derive(Default)]
+pub struct WebJwt;
+// トークンのエンコード デフォルト実装をそのまま利用する
+impl JwtEncoder for WebJwt{}
+impl JwtDecoder<WebClaims , WebAppError, HttpRequest> for WebJwt{
+    fn parse_header(&self , request: &HttpRequest) -> Result<String, WebAppError> {
+        match request.cookie(JWT_COOKIE_KEY) {
+            Some(header) => Ok(String::from(header.name_value().1)) ,
+            None => return Err(WebAppError::AuthorizationError(String::from("認証情報がない")))
+        }
+    }
+}
+
+///
 /// リクエスト受信時の前処理
 ///
 impl FromRequest for WebClaims {
@@ -43,25 +59,12 @@ impl FromRequest for WebClaims {
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let request = req.clone();
         Box::pin(async move {
-            let decoder = WebTwtDecoder::default();
-            let token = decoder.decode_header(&request)?;
-            match decoder.decode_jwt_token(token.as_str()) {
+            let decoder = WebJwt::default();
+            let token = decoder.parse_header(&request)?;
+            match decoder.decode(token.as_str()) {
                 Ok(token_data) =>  Ok(token_data.claims),
-                Err(error) => Err(WebAppError::NotAuthenticateError(error.to_string()))
+                Err(error) => Err(WebAppError::AuthorizationError(error.to_string()))
             }
         })
-    }
-}
-///
-/// Web用Jwtトークンのデコード
-///
-#[derive(Default)]
-pub struct WebTwtDecoder;
-impl JwtDecoder<WebClaims , WebAppError, HttpRequest> for WebTwtDecoder{
-    fn decode_header(&self , request: &HttpRequest) -> Result<String, WebAppError> {
-        match request.cookie(JWT_COOKIE_KEY) {
-            Some(header) => Ok(String::from(header.name_value().1)) ,
-            None => return Err(WebAppError::NotAuthenticateError(String::from("認証情報がない")))
-        }
     }
 }

@@ -1,7 +1,7 @@
 use actix_web::{Responder, web};
 use tera::Tera;
-use crate::handler::jwt::WebClaims;
 use crate::handler::view_helper::UiHelper;
+use crate::jwt::WebClaims;
 
 pub struct MenuHandler;
 impl  MenuHandler {
