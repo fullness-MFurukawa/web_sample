@@ -3,12 +3,12 @@ use actix_web::{Responder, web};
 use sea_orm::DatabaseConnection;
 use tera::Tera;
 use app_commons::presentation::forms::LoginForm;
-use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtEncoder, JwtEncoderImpl};
+use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtEncoder};
 use app_commons::presentation::validate::AppValidator;
 use app_commons::application::sea_orm::provider::AppServiceProvider;
 use crate::handler::view_helper::UiHelper;
 use crate::{Result, WebAppError};
-use crate::handler::jwt::WebClaims;
+use crate::jwt::{WebClaims, WebJwt};
 
 ///
 /// 認証 リクエストハンドラ
@@ -49,15 +49,14 @@ impl AuthenticateHandler {
             Ok(user) => {
                 // JWTトークンを生成する
                 let claims = WebClaims::generate(&user);
-                let token = JwtEncoderImpl::encode(&claims);
+                let token = WebJwt::encode(&claims);
                 let cookie = actix_web::cookie::Cookie::build(
                     JWT_COOKIE_KEY, token).http_only(true).finish();
                 Ok(UiHelper::found(Self::MENU_REDIRECT , Some(cookie)))
             },
             Err(error) => {
-                let error = WebAppError::from(error)?;
                 let mut context = tera::Context::new();
-                context.insert("error" , &error);
+                context.insert("error" , &WebAppError::error_message(error)?);
                 Ok(UiHelper::create_resp(&tera, &context, Self::VIEW_PATH))
             }
         }

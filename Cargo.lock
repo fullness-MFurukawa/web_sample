@@ -362,7 +362,7 @@ checksum = "98161a4e3e2184da77bb14f02184cdd111e83bbbcc9979dfee3c44b9a85f5602"
 [[package]]
 name = "app_commons"
 version = "0.1.0"
-source = "git+https://github.com/fullness-MFurukawa/app_commons?rev=ca1eaaaa2cb85bc4774663f966a3d44f0624f573#ca1eaaaa2cb85bc4774663f966a3d44f0624f573"
+source = "git+https://github.com/fullness-MFurukawa/app_commons?rev=5761ad7315dfebfbfebe977ae6fafbb5badc5bcf#5761ad7315dfebfbfebe977ae6fafbb5badc5bcf"
 dependencies = [
  "actix",
  "anyhow",

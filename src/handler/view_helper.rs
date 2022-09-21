@@ -2,7 +2,6 @@ use actix_session::Session;
 use actix_web::cookie::Cookie;
 use actix_web::HttpResponse;
 use actix_web::http::header;
-use anyhow::anyhow;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use tera::{Context, Tera};
@@ -28,7 +27,7 @@ impl SessionHelper {
     pub fn add<T: Serialize>(session: &Session, key: &str , value: T) -> Result<()> {
         match session.insert(key, &value) {
             Ok(()) => Ok(()) ,
-            Err(error) => Err(WebAppError::InternalError(anyhow!(error)))
+            Err(error) => Err(WebAppError::InternalError(error.to_string()))
         }
     }
     pub fn remove(session: &Session , key: &str) -> () {
@@ -40,7 +39,7 @@ impl SessionHelper {
     pub fn get<T: DeserializeOwned>(session: &Session , key: &str) -> Result<Option<T>>{
         match session.get(key){
             Ok(value) => Ok(value) ,
-            Err(error) => Err(WebAppError::InternalError(anyhow!(error)))
+            Err(error) => Err(WebAppError::InternalError(error.to_string()))
         }
     }
 }

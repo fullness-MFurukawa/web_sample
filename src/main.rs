@@ -58,9 +58,9 @@ fn create_ssl_acceptor_builder() -> SslAcceptorBuilder {
     // OpenSSL構造を管理し、暗号スイート、セッションオプションなどを構成する
     let mut builder: SslAcceptorBuilder = SslAcceptor::mozilla_intermediate_v5(SslMethod::tls_server()).unwrap();
     // 秘密鍵の設定
-    builder.set_private_key_file("localhost-key.pem", SslFiletype::PEM).unwrap();
+    builder.set_private_key_file("localhost+2-key.pem", SslFiletype::PEM).unwrap();
     // 証明書の設定
-    builder.set_certificate_chain_file("localhost.pem").unwrap();
+    builder.set_certificate_chain_file("localhost+2.pem").unwrap();
     builder
 }
 

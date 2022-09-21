@@ -7,7 +7,7 @@ use app_commons::presentation::forms::ProductRegisterForm;
 use app_commons::presentation::validate::AppValidator;
 use app_commons::application::sea_orm::provider::AppServiceProvider;
 use crate::{Result, WebAppError};
-use crate::handler::jwt::WebClaims;
+use crate::jwt::WebClaims;
 use crate::handler::view_helper::{SessionHelper, UiHelper};
 
 ///
@@ -38,7 +38,7 @@ impl ProductRegisterHandler {
                 // 永続化層から商品カテゴリを取得する
                 let categories = match provider.register_service.categories(&pool).await {
                     Ok(categories) => categories ,
-                    Err(error) => return Err(WebAppError::InternalError(anyhow::Error::new(error)))
+                    Err(error) => return Err(WebAppError::InternalError(error.to_string()))
                 };
                 // セッションにカテゴリを登録
                 SessionHelper::add::<Vec<CategoryDto>>(&session , "categories" , categories.clone())?;
@@ -86,10 +86,9 @@ impl ProductRegisterHandler {
             },
             Err(error) => {
                 //　登録済みの場合、入力画面に戻る
-                let exists = WebAppError::from(error)?;
                 let mut context = tera::Context::new();
                 context.insert("categories" , &categories);
-                context.insert("exists" , &exists);
+                context.insert("exists" , &WebAppError::error_message(error)?);
                 context.insert("form" , &form);
                 Ok(UiHelper::create_resp(&tera, &context , Self::ENTER_PATH))
             }

@@ -1,4 +1,6 @@
 pub mod handler;
+pub mod jwt;
+pub mod error;
 
-use crate::handler::error::WebAppError;
+use error::WebAppError;
 pub type Result<T> = anyhow::Result<T , WebAppError>;
