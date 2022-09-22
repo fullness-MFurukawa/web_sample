@@ -22,20 +22,26 @@ impl UiHelper {
     }
 }
 
+///
+/// Session操作構造体
+///
 pub struct SessionHelper;
 impl SessionHelper {
+    // 指定された値をSessionに登録する
     pub fn add<T: Serialize>(session: &Session, key: &str , value: T) -> Result<()> {
         match session.insert(key, &value) {
             Ok(()) => Ok(()) ,
             Err(error) => Err(WebAppError::InternalError(error.to_string()))
         }
     }
+    // Sessionに登録された値を削除する
     pub fn remove(session: &Session , key: &str) -> () {
         match session.remove(key) {
             Some(_) => () ,
             None => ()
         }
     }
+    // セッションから指定された値を取得する
     pub fn get<T: DeserializeOwned>(session: &Session , key: &str) -> Result<Option<T>>{
         match session.get(key){
             Ok(value) => Ok(value) ,

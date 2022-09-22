@@ -33,8 +33,12 @@ impl ProductRegisterHandler {
         // セッションからカテゴリを取得
         let session_categories = SessionHelper::get::<Vec<CategoryDto>>(&session,"categories")?;
         let categories = match session_categories {
-            Some(categories) => categories ,
+            Some(categories) =>{
+                println!("Sessionからカテゴリを取得する");
+                categories
+            } ,
             None => {
+                println!("永続化層からカテゴリを取得する");
                 // 永続化層から商品カテゴリを取得する
                 let categories = match provider.register_service.categories(&pool).await {
                     Ok(categories) => categories ,

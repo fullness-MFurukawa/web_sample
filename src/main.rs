@@ -1,7 +1,10 @@
 use actix_session::SessionMiddleware;
+use actix_session::storage::CookieSessionStore;
+use actix_web::cookie::time::Duration;
+use actix_session::config::BrowserSession;
 use tera::Tera;
 use actix_web::{App, HttpServer, middleware, web};
-use actix_session::storage::RedisSessionStore;
+//use actix_session::storage::RedisSessionStore;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use app_commons::infrastructure::pool::PoolProvider;
 use app_commons::infrastructure::sea_orm::pool_impl::SeaOrmPool;
@@ -18,15 +21,17 @@ async fn main() -> std::io::Result<()> {
     let pool = SeaOrmPool::get().await;
     // アプリケーションサービスプロバイダの生成
     let provider = AppServiceProvider::new();
-    // Cookieセッションの準備 ランダムな署名/暗号化キーを生成
-    let secret_key = actix_web::cookie::Key::generate();
+    //// Cookieセッションの準備 ランダムな署名/暗号化キーを生成
+    //let secret_key = actix_web::cookie::Key::generate();
     // RedisSessionStoreを生成する
-    let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
+    //let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
 
     /*  サーバーの実行 */
     HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())// ロギングミドルウェアの登録
+            /* セッションミドルウェア(Cookie)の登録*/
+            .wrap(build_cookie_session_middleware())
             /*** セッションミドルウェアの登録(Cookie)
                 .wrap(
                     SessionMiddleware::builder(
@@ -36,10 +41,10 @@ async fn main() -> std::io::Result<()> {
                         .build()
                 )***/
             // セッションミドルウェアの登録(Radis)
-            .wrap(SessionMiddleware::builder(
-                redis_store.clone() , // RadisSessionStoreを指定する
-                secret_key.clone()) // キーを指定する
-                .cookie_name("rsession_id".to_string()).build())
+            //.wrap(SessionMiddleware::builder(
+            //    redis_store.clone() , // RadisSessionStoreを指定する
+            //    secret_key.clone()) // キーを指定する
+            //    .cookie_name("rsession_id".to_string()).build())
             // Teraの登録
             .app_data(web::Data::new(tera.clone()))
             // DatabaseConnectionの登録
@@ -85,4 +90,19 @@ pub fn set_config(config: &mut web::ServiceConfig){
             .route("/error" , web::get().to(ErrorHandler::error))
             .default_service(web::get().to(MenuHandler::menu))
     );
+}
+
+///
+/// Cookie Sessionの生成
+///
+pub fn build_cookie_session_middleware() -> SessionMiddleware<CookieSessionStore> {
+    // ランダムな署名/暗号化キーを生成
+    let secret_key = actix_web::cookie::Key::generate();
+    SessionMiddleware::builder(
+        CookieSessionStore::default() ,
+        secret_key)
+        .session_lifecycle(
+            BrowserSession::default().state_ttl(Duration::minutes(5))
+        )
+        .cookie_name("rsessionid".to_string()).build()
 }
