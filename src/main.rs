@@ -97,12 +97,15 @@ pub fn set_config(config: &mut web::ServiceConfig){
 ///
 pub fn build_cookie_session_middleware() -> SessionMiddleware<CookieSessionStore> {
     // ランダムな署名/暗号化キーを生成
-    let secret_key = actix_web::cookie::Key::generate();
+    let key = actix_web::cookie::Key::generate();
+    // SessionMiddlewareを生成する
     SessionMiddleware::builder(
-        CookieSessionStore::default() ,
-        secret_key)
-        .session_lifecycle(
+        CookieSessionStore::default() , // CookieSessionStoreを利用する
+        key) // SessionId生成用のキーを設定する
+        .session_lifecycle( // SessionのライフサイクルをBrowsSessionに設定する
+            // 有効期間を5分にする
             BrowserSession::default().state_ttl(Duration::minutes(5))
         )
+        // SessionIdの名称をrssessionIdに設定する
         .cookie_name("rsessionid".to_string()).build()
 }
