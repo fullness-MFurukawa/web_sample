@@ -30,22 +30,18 @@ impl ProductRegisterHandler {
         pool: web::Data<Arc<DatabaseConnection>> ,
         provider: web::Data<Arc<AppServiceProvider>>) -> Result<impl Responder> {
 
-        // セッションからカテゴリを取得
+        // セッションから商品カテゴリを取得
         let session_categories = SessionHelper::get::<Vec<CategoryDto>>(&session,"categories")?;
         let categories = match session_categories {
-            Some(categories) =>{
-                println!("Sessionからカテゴリを取得する");
-                categories
-            } ,
+            Some(categories) => categories ,
             None => {
-                println!("永続化層からカテゴリを取得する");
                 // 永続化層から商品カテゴリを取得する
                 let categories = match provider.register_service.categories(&pool).await {
                     Ok(categories) => categories ,
                     Err(error) => return Err(WebAppError::InternalError(error.to_string()))
                 };
-                // セッションにカテゴリを登録
-                SessionHelper::add::<Vec<CategoryDto>>(&session , "categories" , categories.clone())?;
+                // セッションに商品カテゴリを登録
+                SessionHelper::insert::<Vec<CategoryDto>>(&session , "categories" , categories.clone())?;
                 categories
             }
         };
@@ -84,7 +80,7 @@ impl ProductRegisterHandler {
         match provider.register_service.execute(&pool , &form).await{
             Ok(new_product) => {
                 // 登録結果をSessionに格納する
-                SessionHelper::add::<ProductDto>(&session , "new_product" , new_product)?;
+                SessionHelper::insert::<ProductDto>(&session , "new_product" , new_product)?;
                 // 登録結果へリダイレクト
                 Ok(UiHelper::found(Self::FINISH_REDIRECT , None))
             },
@@ -98,7 +94,6 @@ impl ProductRegisterHandler {
             }
         }
     }
-
     ///
     /// 商品登録　登録結果の出力
     ///
