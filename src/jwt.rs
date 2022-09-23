@@ -8,7 +8,6 @@ use app_commons::application::transfers::UserDto;
 use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtDecoder, JwtEncoder};
 use crate::WebAppError;
 
-
 /// クレーム(認証に必要な個人情報)
 /// JWTトークンのPayload
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,7 +16,7 @@ pub struct WebClaims {
     exp:        i64 ,      //  Tokenの有効期限
     sub:        String ,   //  リソースオーナーの識別子
     user_id:    String ,   //  ユーザーId(Uuid)
-    user_name:  String, //   ユーザー名
+    user_name:  String,    //  ユーザー名
 }
 impl ClaimsGenerator<UserDto> for WebClaims {
     fn generate(user: &UserDto) -> Self {
@@ -34,6 +33,29 @@ impl ClaimsGenerator<UserDto> for WebClaims {
     }
 }
 ///
+/// リクエスト受信時の前処理
+///
+impl FromRequest for WebClaims {
+    type Error = WebAppError;
+    type Future = Pin<Box<dyn Future<Output = anyhow::Result<Self, Self::Error>>>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        let request = req.clone();
+        Box::pin(async move {
+            // JWTデーコード機能を生成する
+            let decoder = WebJwt::default();
+            // リクエストヘッダーを解析する
+            let token = decoder.parse_header(&request)?;
+            match decoder.decode(token.as_str()) {
+                // 取得したClaimsを返す
+                Ok(token_data) =>  Ok(token_data.claims),
+                // ヘッダーが存在しない場合は認証へリダイレクトさせる
+                Err(error) => Err(WebAppError::AuthorizationError(error.to_string()))
+            }
+        })
+    }
+}
+///
 /// Web用Jwtトークンのデコード
 ///
 #[derive(Default)]
@@ -47,25 +69,5 @@ impl JwtDecoder<WebClaims , WebAppError, HttpRequest> for WebJwt{
             Some(header) => Ok(String::from(header.name_value().1)) ,
             None => return Err(WebAppError::AuthorizationError(String::from("認証情報がない")))
         }
-    }
-}
-
-///
-/// リクエスト受信時の前処理
-///
-impl FromRequest for WebClaims {
-    type Error = WebAppError;
-    type Future = Pin<Box<dyn Future<Output = anyhow::Result<Self, Self::Error>>>>;
-
-    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let request = req.clone();
-        Box::pin(async move {
-            let decoder = WebJwt::default();
-            let token = decoder.parse_header(&request)?;
-            match decoder.decode(token.as_str()) {
-                Ok(token_data) =>  Ok(token_data.claims),
-                Err(error) => Err(WebAppError::AuthorizationError(error.to_string()))
-            }
-        })
     }
 }
