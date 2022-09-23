@@ -45,7 +45,7 @@ impl AuthenticateHandler {
             }
         };
         // 認証
-        match provider.authenticate_service.execute(&pool,&form.0).await{
+        match provider.authenticate_service.execute(&pool,&form).await{
             Ok(user) => {
                 // JWTトークンを生成する
                 let claims = WebClaims::generate(&user);

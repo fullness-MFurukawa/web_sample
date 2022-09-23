@@ -66,8 +66,8 @@ impl JwtDecoder<WebClaims , WebAppError, HttpRequest> for WebJwt{
     fn parse_header(&self , request: &HttpRequest) -> Result<String, WebAppError> {
         // CookieからJWTトークンを取得する
         match request.cookie(JWT_COOKIE_KEY) {
-            Some(header) => Ok(String::from(header.name_value().1)) ,
-            None => return Err(WebAppError::AuthorizationError(String::from("認証情報がない")))
+            Some(cookie_value) => Ok(String::from(cookie_value.name_value().1)),
+            None => return Err(WebAppError::AuthorizationError(String::from("token does not exist.")))
         }
     }
 }
