@@ -7,12 +7,17 @@ use serde::Serialize;
 use tera::{Context, Tera};
 use crate::{Result, WebAppError};
 
+///
+/// HTMLレスポンス生成、リダイレクト操作
+///
 pub struct UiHelper;
 impl UiHelper {
+    // HTMLレスポンスを生成する
     pub fn create_resp(tera: &Tera,context: &Context , path: &str) -> HttpResponse {
         let body = tera.render(path, context).unwrap();
         HttpResponse::Ok().content_type(mime::TEXT_HTML).body(body)
     }
+    // リダイレクトする
     pub fn found(path: &str , cookie: Option<Cookie>) -> HttpResponse {
         if cookie.is_some(){
             HttpResponse::Found().cookie(cookie.unwrap()).insert_header((header::LOCATION , path)).finish()
