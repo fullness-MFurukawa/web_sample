@@ -1,10 +1,9 @@
+use actix_session::config::PersistentSession;
 use actix_session::SessionMiddleware;
-use actix_session::storage::CookieSessionStore;
+use actix_session::storage::RedisSessionStore;
 use actix_web::cookie::time::Duration;
-use actix_session::config::BrowserSession;
 use tera::Tera;
 use actix_web::{App, HttpServer, middleware, web};
-//use actix_session::storage::RedisSessionStore;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use app_commons::infrastructure::pool::PoolProvider;
 use app_commons::infrastructure::sea_orm::pool_impl::SeaOrmPool;
@@ -26,25 +25,44 @@ async fn main() -> std::io::Result<()> {
     // RedisSessionStoreを生成する
     //let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
 
+    // Cookieを利用するSessionMiddlewareの生成
+    /*let session_middleware = || {
+        // ランダムな署名/暗号化キーを生成
+        let key = actix_web::cookie::Key::generate();
+        // SessionMiddlewareを生成する
+        SessionMiddleware::builder(
+            // CookieSessionStoreと　SessionId生成用のキーを設定する
+            CookieSessionStore::default() , key)
+            // SessionのライフサイクルをBrowsSessionに設定する　有効期間を5分にする
+            .session_lifecycle(
+                BrowserSession::default().state_ttl(Duration::minutes(5))
+            )
+            // SessionIdの名称をrssessionIdに設定する
+            .cookie_name("rsessionid".to_string())
+            .build()
+    };*/
+
+    // ランダムな署名/暗号化キーを生成
+    let key = actix_web::cookie::Key::generate();
+    // RedisSessionStoreを生成する
+    let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
+
     /*  サーバーの実行 */
     HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())// ロギングミドルウェアの登録
-            /* セッションミドルウェア(Cookie)の登録*/
-            .wrap(build_cookie_session_middleware())
-            /*** セッションミドルウェアの登録(Cookie)
-                .wrap(
-                    SessionMiddleware::builder(
-                        CookieSessionStore::default() // CookieSessionStoreを生成する
-                        , secret_key.clone()) // キーを指定する
-                        .cookie_name("rsessionid".to_string()) // SessionIdの名称を指定する
-                        .build()
-                )***/
-            // セッションミドルウェアの登録(Radis)
-            //.wrap(SessionMiddleware::builder(
-            //    redis_store.clone() , // RadisSessionStoreを指定する
-            //    secret_key.clone()) // キーを指定する
-            //    .cookie_name("rsession_id".to_string()).build())
+            /* セッションミドルウェア(Redis)の登録*/
+            .wrap(
+                SessionMiddleware::builder(
+                    // RedisSessionStoreとKeyを設定する
+                    redis_store.clone() , key.clone())
+                    .session_lifecycle(
+                        // SessionのライフサイクルをPersistenceSessionに設定する 有効期間を5分にする
+                        PersistentSession::default().session_ttl(Duration::minutes(5))
+                    )
+                    // SessionIdの名称をrssessionIdに設定する
+                    .cookie_name("rsessionid".to_string()).build()
+            )
             // Teraの登録
             .app_data(web::Data::new(tera.clone()))
             // DatabaseConnectionの登録
@@ -90,22 +108,4 @@ pub fn set_config(config: &mut web::ServiceConfig){
             .route("/error" , web::get().to(ErrorHandler::error))
             .default_service(web::get().to(MenuHandler::menu))
     );
-}
-
-///
-/// Cookie Sessionの生成
-///
-pub fn build_cookie_session_middleware() -> SessionMiddleware<CookieSessionStore> {
-    // ランダムな署名/暗号化キーを生成
-    let key = actix_web::cookie::Key::generate();
-    // SessionMiddlewareを生成する
-    SessionMiddleware::builder(
-        CookieSessionStore::default() , // CookieSessionStoreを利用する
-        key) // SessionId生成用のキーを設定する
-        .session_lifecycle( // SessionのライフサイクルをBrowsSessionに設定する
-            // 有効期間を5分にする
-            BrowserSession::default().state_ttl(Duration::minutes(5))
-        )
-        // SessionIdの名称をrssessionIdに設定する
-        .cookie_name("rsessionid".to_string()).build()
 }
