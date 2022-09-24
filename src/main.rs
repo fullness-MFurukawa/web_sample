@@ -1,9 +1,9 @@
+use tera::Tera;
+use actix_web::{App, HttpServer, middleware, web};
 use actix_session::config::PersistentSession;
 use actix_session::SessionMiddleware;
 use actix_session::storage::RedisSessionStore;
 use actix_web::cookie::time::Duration;
-use tera::Tera;
-use actix_web::{App, HttpServer, middleware, web};
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use app_commons::infrastructure::pool::PoolProvider;
 use app_commons::infrastructure::sea_orm::pool_impl::SeaOrmPool;
