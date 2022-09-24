@@ -35,12 +35,11 @@ impl ProductSearchHandler {
 
         // 入力値の検証
         match form.validate_value() {
-            Ok(_) => (),
             Err(error) => {
                 let mut context = tera::Context::new();
                 context.insert("errors", &error.errors);
                 return Ok(UiHelper::create_resp(&tera, &context, Self::VIEW_PATH));
-            }
+            }, Ok(_) => ()
         };
         // 商品キーワード検索
         let mut context = tera::Context::new();

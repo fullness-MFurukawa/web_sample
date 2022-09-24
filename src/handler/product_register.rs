@@ -70,7 +70,6 @@ impl ProductRegisterHandler {
         };
         // 入力値の検証
         match form.validate_value() {
-            Ok(_) => (),
             Err(error) => {
                 let mut context = tera::Context::new();
                 // 検証エラー、Form、カテゴリをContextに格納
@@ -79,7 +78,7 @@ impl ProductRegisterHandler {
                 context.insert("errors", &error.errors);
                 //　入力画面に遷移する
                 return Ok(UiHelper::create_resp(&tera, &context, Self::ENTER_PATH));
-            }
+            }, Ok(_) => ()
         };
         // 入力された商品を永続化する
         match provider.register_service.execute(&pool , &form).await{

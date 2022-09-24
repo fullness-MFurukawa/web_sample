@@ -36,13 +36,12 @@ impl AuthenticateHandler {
         provider: web::Data<Arc<AppServiceProvider>>) -> Result<impl Responder> {
         // 入力値の検証
         match form.validate_value() {
-            Ok(_) => (),
             Err(error) => {
                 let mut context = tera::Context::new();
                 // 検証エラーをContextに格納してログイン画面に遷移
                 context.insert("errors", &error.errors);
                 return Ok(UiHelper::create_resp(&tera, &context, Self::VIEW_PATH));
-            }
+            }, Ok(_) => ()
         };
         // 認証
         match provider.authenticate_service.execute(&pool,&form).await{
