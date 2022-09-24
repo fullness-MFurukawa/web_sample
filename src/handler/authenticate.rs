@@ -47,8 +47,7 @@ impl AuthenticateHandler {
         match provider.authenticate_service.execute(&pool,&form).await{
             Ok(user) => {
                 // JWTトークンを生成する
-                let claims = WebClaims::generate(&user);
-                let token = WebJwt::encode(&claims);
+                let token = WebJwt::encode(&WebClaims::generate(&user));
                 //　生成したトークンをCookieを生成する
                 let cookie = cookie::Cookie::build(JWT_COOKIE_KEY, token)
                     // 有効期限を5分に設定する
