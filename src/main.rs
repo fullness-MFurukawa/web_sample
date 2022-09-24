@@ -21,7 +21,7 @@ async fn main() -> std::io::Result<()> {
     // アプリケーションサービスプロバイダの生成
     let provider = AppServiceProvider::new();
     // ランダムな署名/暗号化キーを生成
-    let key = actix_web::cookie::Key::generate();
+    let key = cookie::Key::generate();
     // RedisSessionStoreを生成する
     let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
 
