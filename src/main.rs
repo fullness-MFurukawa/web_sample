@@ -20,28 +20,6 @@ async fn main() -> std::io::Result<()> {
     let pool = SeaOrmPool::get().await;
     // アプリケーションサービスプロバイダの生成
     let provider = AppServiceProvider::new();
-    //// Cookieセッションの準備 ランダムな署名/暗号化キーを生成
-    //let secret_key = actix_web::cookie::Key::generate();
-    // RedisSessionStoreを生成する
-    //let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
-
-    // Cookieを利用するSessionMiddlewareの生成
-    /*let session_middleware = || {
-        // ランダムな署名/暗号化キーを生成
-        let key = actix_web::cookie::Key::generate();
-        // SessionMiddlewareを生成する
-        SessionMiddleware::builder(
-            // CookieSessionStoreと　SessionId生成用のキーを設定する
-            CookieSessionStore::default() , key)
-            // SessionのライフサイクルをBrowsSessionに設定する　有効期間を5分にする
-            .session_lifecycle(
-                BrowserSession::default().state_ttl(Duration::minutes(5))
-            )
-            // SessionIdの名称をrssessionIdに設定する
-            .cookie_name("rsessionid".to_string())
-            .build()
-    };*/
-
     // ランダムな署名/暗号化キーを生成
     let key = actix_web::cookie::Key::generate();
     // RedisSessionStoreを生成する
