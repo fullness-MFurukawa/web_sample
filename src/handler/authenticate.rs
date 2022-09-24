@@ -39,7 +39,7 @@ impl AuthenticateHandler {
             Ok(_) => (),
             Err(error) => {
                 let mut context = tera::Context::new();
-                // 検証エラーをContextに格納
+                // 検証エラーをContextに格納してログイン画面に遷移
                 context.insert("errors", &error.errors);
                 return Ok(UiHelper::create_resp(&tera, &context, Self::VIEW_PATH));
             }
@@ -50,11 +50,13 @@ impl AuthenticateHandler {
                 // JWTトークンを生成する
                 let claims = WebClaims::generate(&user);
                 let token = WebJwt::encode(&claims);
+                //　生成したトークンをCookieオブジェクトに格納してメニューにリダイレクトする
                 let cookie = actix_web::cookie::Cookie::build(
                     JWT_COOKIE_KEY, token).http_only(true).finish();
                 Ok(UiHelper::found(Self::MENU_REDIRECT , Some(cookie)))
             },
             Err(error) => {
+                // エラーメッセージをContextに格納してログイン画面に遷移
                 let mut context = tera::Context::new();
                 context.insert("error" , &WebAppError::error_message(error)?);
                 Ok(UiHelper::create_resp(&tera, &context, Self::VIEW_PATH))
