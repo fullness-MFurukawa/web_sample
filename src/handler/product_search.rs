@@ -1,6 +1,5 @@
 use std::sync::Arc;
 use actix_web::{Responder, web};
-use actix_web::web::{Data, Form};
 use sea_orm::DatabaseConnection;
 use tera::Tera;
 use app_commons::presentation::forms::ProductSearchForm;
@@ -28,10 +27,10 @@ impl ProductSearchHandler {
     ///
     pub async fn result(
         _claims: WebClaims ,
-        form: Form<ProductSearchForm>,
-        tera: Data<Tera>,
-        pool: Data<Arc<DatabaseConnection>>,
-        provider: Data<Arc<AppServiceProvider>>) -> Result<impl Responder> {
+        form: web::Form<ProductSearchForm>,
+        tera: web::Data<Tera>,
+        pool: web::Data<Arc<DatabaseConnection>>,
+        provider: web::Data<Arc<AppServiceProvider>>) -> Result<impl Responder> {
 
         // 入力値の検証
         match form.validate_value() {

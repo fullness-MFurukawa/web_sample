@@ -49,9 +49,13 @@ impl AuthenticateHandler {
                 // JWTトークンを生成する
                 let claims = WebClaims::generate(&user);
                 let token = WebJwt::encode(&claims);
-                //　生成したトークンをCookieオブジェクトに格納してメニューにリダイレクトする
-                let cookie = actix_web::cookie::Cookie::build(
-                    JWT_COOKIE_KEY, token).http_only(true).finish();
+                //　生成したトークンをCookieを生成する
+                let cookie = cookie::Cookie::build(JWT_COOKIE_KEY, token)
+                    // 有効期限を5分に設定する
+                    .max_age(cookie::time::Duration::minutes(5))
+                    // HTTPのみ有効にし、SL/TLSに限定する
+                    .http_only(true).secure(true).finish();
+                //　メニューにリダイレクトする
                 Ok(UiHelper::found(Self::MENU_REDIRECT , Some(cookie)))
             },
             Err(error) => {

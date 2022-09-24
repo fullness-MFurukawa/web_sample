@@ -3004,6 +3004,7 @@ dependencies = [
  "app_commons",
  "async-trait",
  "chrono",
+ "cookie",
  "env_logger",
  "log",
  "mime",
