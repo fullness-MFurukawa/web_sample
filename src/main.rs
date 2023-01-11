@@ -4,10 +4,11 @@ use actix_session::config::PersistentSession;
 use actix_session::SessionMiddleware;
 use actix_session::storage::RedisSessionStore;
 use actix_web::cookie::time::Duration;
+use actix_web::web::resource;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use app_commons::infrastructure::pool::PoolProvider;
 use app_commons::infrastructure::sea_orm::pool_impl::SeaOrmPool;
-use app_commons::application::sea_orm::provider::AppServiceProvider;
+use app_commons::application::sea_orm::provider_impl::AppServiceProvider;
 
 
 #[actix_web::main]
@@ -73,17 +74,26 @@ pub fn set_config(config: &mut web::ServiceConfig){
     use web_sample::handler::product_search::ProductSearchHandler;
     use web_sample::handler::product_register::ProductRegisterHandler;
     use web_sample::handler::authenticate::AuthenticateHandler;
-    config.service(
-        web::scope("/web_sample")
-            .route("/login" , web::get().to(AuthenticateHandler::enter))
-            .route("/login" , web::post().to(AuthenticateHandler::authenticate))
-            .route("/menu" , web::get().to(MenuHandler::menu))
-            .route("/search/product" , web::get().to(ProductSearchHandler::enter))
-            .route("/search/product" , web::post().to(ProductSearchHandler::result))
-            .route("/register/product" , web::get().to(ProductRegisterHandler::enter))
-            .route("/register/product" , web::post().to(ProductRegisterHandler::complete))
-            .route("/register/product/finish" , web::get().to(ProductRegisterHandler::finish))
+    config.service(web::scope("/web_sample")
+            //   ログイン認証
+            .service(resource("/login")
+                .route(web::get().to(AuthenticateHandler::enter))
+                .route(web::post().to(AuthenticateHandler::authenticate)))
+            // メニュー
+            .route("/menu",web::get().to(MenuHandler::menu))
+            // 商品キーワード検索
+            .service(resource("/search/product")
+                .route(web::get().to(ProductSearchHandler::enter))
+                .route(web::post().to(ProductSearchHandler::result)))
+            // 商品登録
+            .service(resource("/register/product")
+                .route(web::get().to(ProductRegisterHandler::enter))
+                .route(web::post().to(ProductRegisterHandler::complete)))
+                .route("/register/product/finish" , web::get().to(ProductRegisterHandler::finish))
+            // 内部エラー
             .route("/error" , web::get().to(ErrorHandler::error))
-            .default_service(web::get().to(MenuHandler::menu))
+        )
+        // デフォルトページ
+        .default_service(web::get().to(MenuHandler::menu)
     );
 }

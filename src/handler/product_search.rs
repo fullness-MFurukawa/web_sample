@@ -4,11 +4,10 @@ use sea_orm::DatabaseConnection;
 use tera::Tera;
 use app_commons::presentation::forms::ProductSearchForm;
 use app_commons::presentation::validate::AppValidator;
-use app_commons::application::sea_orm::provider::AppServiceProvider;
+use app_commons::application::sea_orm::provider_impl::AppServiceProvider;
 use crate::handler::view_helper::UiHelper;
 use crate::{Result, WebAppError};
 use crate::jwt::WebClaims;
-
 ///
 /// 商品検索 リクエストハンドラ
 ///

@@ -5,7 +5,7 @@ use tera::Tera;
 use app_commons::presentation::forms::LoginForm;
 use app_commons::presentation::jwt::{ClaimsGenerator, JWT_COOKIE_KEY, JwtEncoder};
 use app_commons::presentation::validate::AppValidator;
-use app_commons::application::sea_orm::provider::AppServiceProvider;
+use app_commons::application::sea_orm::provider_impl::AppServiceProvider;
 use crate::handler::view_helper::UiHelper;
 use crate::{Result, WebAppError};
 use crate::jwt::{WebClaims, WebJwt};

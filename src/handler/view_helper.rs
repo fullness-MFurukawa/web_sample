@@ -33,8 +33,8 @@ impl UiHelper {
 pub struct SessionHelper;
 impl SessionHelper {
     // 指定された値をSessionに登録する
-    pub fn insert<T: Serialize>(session: &Session, key: &str , value: T) -> Result<()> {
-        match session.insert(key, &value) {
+    pub fn insert<T: Serialize>(session: &Session, key: &str , value: &T) -> Result<()> {
+        match session.insert(key, value) {
             Ok(()) => Ok(()) ,
             Err(error) => Err(WebAppError::InternalError(error.to_string()))
         }

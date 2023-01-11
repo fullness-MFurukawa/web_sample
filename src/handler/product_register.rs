@@ -5,7 +5,7 @@ use sea_orm::DatabaseConnection;
 use app_commons::application::transfers::{ProductDto , CategoryDto};
 use app_commons::presentation::forms::ProductRegisterForm;
 use app_commons::presentation::validate::AppValidator;
-use app_commons::application::sea_orm::provider::AppServiceProvider;
+use app_commons::application::sea_orm::provider_impl::AppServiceProvider;
 use crate::{Result, WebAppError};
 use crate::jwt::WebClaims;
 use crate::handler::view_helper::{SessionHelper, UiHelper};
@@ -41,7 +41,7 @@ impl ProductRegisterHandler {
                     Err(error) => return Err(WebAppError::InternalError(error.to_string()))
                 };
                 // セッションに商品カテゴリを登録
-                SessionHelper::insert::<Vec<CategoryDto>>(&session , "categories" , categories.clone())?;
+                SessionHelper::insert::<Vec<CategoryDto>>(&session , "categories" , &categories)?;
                 categories
             }
         };
@@ -84,7 +84,7 @@ impl ProductRegisterHandler {
         match provider.register_service.execute(&pool , &form).await{
             Ok(new_product) => {
                 // 登録結果をSessionに格納する
-                SessionHelper::insert::<ProductDto>(&session , "new_product" , new_product)?;
+                SessionHelper::insert::<ProductDto>(&session , "new_product" , &new_product)?;
                 // 登録結果へリダイレクト
                 Ok(UiHelper::found(Self::FINISH_REDIRECT , None))
             },
